@@ -10,7 +10,7 @@ To add this library to your project (with Maven) :
   ```
   <dependency>
       <groupId>fr.sythm</groupId>
-      <artifactId>TKFRedisHandler</artifactId>
+      <artifactId>tkfredishandler</artifactId>
       <version>1.0-SNAPSHOT</version>
   </dependency>
   ```
