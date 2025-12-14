@@ -33,4 +33,4 @@ To add this library to your project (with Maven) :
   </plugin>
   ```
 
-Reload your pom.xml and you're ready to go !
+Reload your Maven project and you're ready to go !
