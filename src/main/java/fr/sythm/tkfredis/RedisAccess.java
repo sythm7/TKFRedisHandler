@@ -9,6 +9,9 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
 import io.lettuce.core.RedisChannelHandler;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.SocketAddress;
 
 /**
@@ -20,6 +23,8 @@ public class RedisAccess {
     private static RedisAccess instance;
 
     private final RedisClient redisClient;
+
+    private static final Logger log = LoggerFactory.getLogger(RedisAccess.class);
 
     private final RedisPubSubAsyncCommands<String, String> asyncCommands;
 
@@ -110,19 +115,19 @@ public class RedisAccess {
             @Override
             public void onRedisConnected(RedisChannelHandler<?, ?> connection, SocketAddress socketAddress) {
                 RedisConnectionStateListener.super.onRedisConnected(connection, socketAddress);
-                System.out.println("Successfully established connection with Redis.");
+                log.info("[TKF_REDIS] Successfully established connection with Redis.");
             }
 
             @Override
             public void onRedisDisconnected(RedisChannelHandler<?, ?> connection) {
                 RedisConnectionStateListener.super.onRedisDisconnected(connection);
-                System.out.println("Redis has been disconnected.");
+                log.info("[TKF_REDIS] Redis has been disconnected.");
             }
 
             @Override
             public void onRedisExceptionCaught(RedisChannelHandler<?, ?> connection, Throwable cause) {
                 RedisConnectionStateListener.super.onRedisExceptionCaught(connection, cause);
-                System.err.println("An error has occurred with Redis : " + cause);
+                log.error("[TKF_REDIS] An error has occurred with Redis : {}", cause.getMessage());
             }
         });
 
