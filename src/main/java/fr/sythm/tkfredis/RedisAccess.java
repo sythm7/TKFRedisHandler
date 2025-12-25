@@ -115,19 +115,19 @@ public class RedisAccess {
             @Override
             public void onRedisConnected(RedisChannelHandler<?, ?> connection, SocketAddress socketAddress) {
                 RedisConnectionStateListener.super.onRedisConnected(connection, socketAddress);
-                log.info("[TKF_REDIS] Successfully established connection with Redis.");
+                log.info("Successfully established connection with Redis.");
             }
 
             @Override
             public void onRedisDisconnected(RedisChannelHandler<?, ?> connection) {
                 RedisConnectionStateListener.super.onRedisDisconnected(connection);
-                log.info("[TKF_REDIS] Redis has been disconnected.");
+                log.info("Redis has been disconnected.");
             }
 
             @Override
             public void onRedisExceptionCaught(RedisChannelHandler<?, ?> connection, Throwable cause) {
                 RedisConnectionStateListener.super.onRedisExceptionCaught(connection, cause);
-                log.error("[TKF_REDIS] An error has occurred with Redis : {}", cause.getMessage());
+                log.error("An error has occurred with Redis : {}", cause.getMessage());
             }
         });
 
