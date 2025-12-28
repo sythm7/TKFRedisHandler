@@ -1,14 +1,11 @@
 package fr.sythm.tkfredis;
 import com.google.gson.Gson;
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.RedisConnectionStateListener;
-import io.lettuce.core.RedisURI;
+import io.lettuce.core.*;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
-import io.lettuce.core.RedisChannelHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +66,22 @@ public class RedisAccess {
         if (instance == null) {
             throw new IllegalStateException("RedisAccess is not connected. Call connect() first.");
         }
-        instance.publish_(javaObject, channel);
+        instance.publish_(javaObject, channel, null);
+    }
+
+    /**
+     * Allows you to publish a Java object through the Redis server, which will redistribute it to all subscribers.
+     * Throws an exception if you call this method without having used {@link #connect} first.
+     * @param javaObject The Java object to send
+     * @param channel The channel subscribers will receive the message from
+     * @param callback The action to be performed when the message is done publishing
+     * @param <T> The type of the object to be sent
+     */
+    public static <T> void publish(T javaObject, String channel, PublishCallback callback) {
+        if (instance == null) {
+            throw new IllegalStateException("RedisAccess is not connected. Call connect() first.");
+        }
+        instance.publish_(javaObject, channel, callback);
     }
 
     /**
@@ -145,15 +157,20 @@ public class RedisAccess {
     /**
      * Same as {@link #publish} but not callable by the user.
      *
+     * @param <T>        The type of the object to be sent
      * @param javaObject The Java object to send
-     * @param channel The channel subscribers will receive the message from
-     * @param <T> The type of the object to be sent
+     * @param channel    The channel subscribers will receive the message from
+     * @param callback   The action to be performed when the message is done publishing
      */
-    private <T> void publish_(T javaObject, String channel) {
+    private <T> void publish_(T javaObject, String channel, @Nullable PublishCallback callback) {
         //Transform the object into a readable JSON sequence, and then publish it via the redis server
         Gson gson = new Gson();
         String json = gson.toJson(javaObject);
-        this.asyncCommands.publish(channel, json);
+        RedisFuture<Long> publishFuture = this.asyncCommands.publish(channel, json);
+
+        if(callback != null) {
+            publishFuture.thenRun(callback::execute);
+        }
     }
 
     /**
